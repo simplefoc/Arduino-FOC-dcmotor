@@ -110,6 +110,13 @@ void DCMotor::move(float new_target) {
             else
                 voltage.q = 0.0f; // TODO implement the other torque modes, and current control loop
             break;
+        case MotionControlType::angle_nocascade:
+            // non-cascaded angle control: P_angle output goes directly to voltage
+            // (no inner velocity loop — mirrors FOCMotor implementation)
+            shaft_angle_sp = target;
+            voltage.q = P_angle(shaft_angle_sp - LPF_angle(shaft_angle));
+            voltage.q = _constrain(voltage.q, -voltage_limit, voltage_limit);
+            break;
         case MotionControlType::angle:
             // angle set point
             // include angle loop
